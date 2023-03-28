@@ -4,19 +4,133 @@ import {
   torch,
   torchvision,
 } from 'react-native-pytorch-core';
-import COCO_CLASSES from './CoCoClasses.json';
+import COCO_CLASSES from './CocoClasses.json';
 
 const T = torchvision.transforms;
-
-// const MODEL_URL =
-//   "https://github.com/pytorch/live/releases/download/v0.1.0/detr_resnet50.ptl";
+const IMAGE_SIZE = 640;
 
 const MODEL_URL =
-  'https://github.com/akash-zdaly/ImgDet/raw/main/assests/yolov5s.ptl';
+  'https://github.com/facebookresearch/playtorch/releases/download/v0.2.0/yolov5s.ptl';
 
 let model = null;
-const probabilityThreshold = 0.7;
 console.log(MODEL_URL);
+/**
+ * Computes intersection-over-union overlap between two bounding boxes.
+ */
+function IOU(a, b) {
+  let areaA = (a[2] - a[0]) * (a[3] - a[1]);
+  if (areaA <= 0.0) {
+    return 0.0;
+  }
+
+  let areaB = (b[2] - b[0]) * (b[3] - b[1]);
+  if (areaB <= 0.0) {
+    return 0.0;
+  }
+
+  const intersectionMinX = Math.max(a[0], b[0]);
+  const intersectionMinY = Math.max(a[1], b[1]);
+  const intersectionMaxX = Math.min(a[2], b[2]);
+  const intersectionMaxY = Math.min(a[3], b[3]);
+  const intersectionArea =
+    Math.max(intersectionMaxY - intersectionMinY, 0) *
+    Math.max(intersectionMaxX - intersectionMinX, 0);
+  return intersectionArea / (areaA + areaB - intersectionArea);
+}
+
+function nonMaxSuppression(boxes, limit, threshold) {
+  // Do an argsort on the confidence scores, from high to low.
+  const newBoxes = boxes.sort((a, b) => {
+    return a.score - b.score;
+  });
+
+  const selected = [];
+  const active = new Array(newBoxes.length).fill(true);
+  let numActive = active.length;
+
+  // The algorithm is simple: Start with the box that has the highest score.
+  // Remove any remaining boxes that overlap it more than the given threshold
+  // amount. If there are any boxes left (i.e. these did not overlap with any
+  // previous boxes), then repeat this procedure, until no more boxes remain
+  // or the limit has been reached.
+  let done = false;
+  for (let i = 0; i < newBoxes.length && !done; i++) {
+    if (active[i]) {
+      const boxA = newBoxes[i];
+      selected.push(boxA);
+      if (selected.length >= limit) {
+        break;
+      }
+
+      for (let j = i + 1; j < newBoxes.length; j++) {
+        if (active[j]) {
+          const boxB = newBoxes[j];
+          if (IOU(boxA.bounds, boxB.bounds) > threshold) {
+            active[j] = false;
+            numActive -= 1;
+            if (numActive <= 0) {
+              done = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  return selected;
+}
+
+function outputsToNMSPredictions(
+  prediction,
+  imgScaleX,
+  imgScaleY,
+  startX,
+  startY,
+) {
+  const predictionThreshold = 0.3;
+  const iOUThreshold = 0.3;
+  const nMSLimit = 15;
+  const results = [];
+  const rows = prediction.shape[0];
+  const numberOfClass = prediction.shape[1] - 5;
+  for (let i = 0; i < rows; i++) {
+    const outputs = prediction[i].data();
+    // Only consider an object detected if it has a confidence score of over predictionThreshold
+    const score = outputs[4];
+    if (score > predictionThreshold) {
+      // Find the detected objct calss with max score and get the classIndex
+      let max = outputs[5];
+      let classIndex = 0;
+      for (let j = 0; j < numberOfClass; j++) {
+        if (outputs[j + 5] > max) {
+          max = outputs[j + 5];
+          classIndex = j;
+        }
+      }
+
+      // Calulate the bound of the detected object bounding box
+      const x = outputs[0];
+      const y = outputs[1];
+      const w = outputs[2];
+      const h = outputs[3];
+
+      const left = imgScaleX * (x - w / 2);
+      const top = imgScaleY * (y - h / 2);
+
+      const bound = [startX + left, startY + top, w * imgScaleX, h * imgScaleY];
+
+      // Construct result and add it to results array
+      const result = {
+        classIndex: classIndex,
+        score: score,
+        bounds: bound,
+      };
+      results.push(result);
+    }
+  }
+  return nonMaxSuppression(results, nMSLimit, iOUThreshold);
+}
+
 export default async function detectObjects(image) {
   // Get image width and height
   const imageWidth = image.getWidth();
@@ -36,13 +150,13 @@ export default async function detectObjects(image) {
   // Divide the tensor values by 255 to get values between [0, 1]
   tensor = tensor.div(255);
 
-  // Resize the image tensor to 3 x min(height, 800) x min(width, 800)
-  const resize = T.resize(800);
+  // Resize the image tensor to 3 x min(height, IMAGE_SIZE) x min(width, IMAGE_SIZE)
+  const resize = T.resize([IMAGE_SIZE, IMAGE_SIZE]);
   tensor = resize(tensor);
 
-  // Normalize the tensor image with mean and standard deviation
-  const normalize = T.normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]);
-  tensor = normalize(tensor);
+  // Center crop the image to IMAGE_SIZE x IMAGE_SIZE
+  const centerCrop = T.centerCrop([IMAGE_SIZE]);
+  tensor = centerCrop(tensor);
 
   // Unsqueeze adds 1 leading dimension to the tensor
   const formattedInputTensor = tensor.unsqueeze(0);
@@ -55,46 +169,41 @@ export default async function detectObjects(image) {
     console.log('Model successfully loaded');
   }
 
+  //console.log(model);
+
   // Run inference
   const output = await model.forward(formattedInputTensor);
 
-  const predLogits = output.pred_logits.squeeze(0);
-  const predBoxes = output.pred_boxes.squeeze(0);
+  const prediction = output[0];
+  const imgScaleX = imageWidth / IMAGE_SIZE;
+  const imgScaleY = imageHeight / IMAGE_SIZE;
 
-  const numPredictions = predLogits.shape[0];
+  console.log(prediction);
 
+  // Filter results and calulate bounds
+  const results = outputsToNMSPredictions(
+    prediction[0],
+    imgScaleX,
+    imgScaleY,
+    0,
+    0,
+  );
+
+  // Format filtered results with object name and bounds
   const resultBoxes = [];
-
-  for (let i = 0; i < numPredictions; i++) {
-    const confidencesTensor = predLogits[i];
-    const scores = confidencesTensor.softmax(0);
-    const maxIndex = confidencesTensor.argmax().item();
-    const maxProb = scores[maxIndex].item();
-
-    if (maxProb <= probabilityThreshold || maxIndex >= COCO_CLASSES.length) {
-      continue;
-    }
-
-    const boxTensor = predBoxes[i];
-    const [centerX, centerY, boxWidth, boxHeight] = boxTensor.data();
-    const x = centerX - boxWidth / 2;
-    const y = centerY - boxHeight / 2;
-
-    // Adjust bounds to image size
-    const bounds = [
-      x * imageWidth,
-      y * imageHeight,
-      boxWidth * imageWidth,
-      boxHeight * imageHeight,
-    ];
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i];
+    const nameIdx = result.classIndex;
+    const name = COCO_CLASSES[nameIdx];
 
     const match = {
-      objectClass: COCO_CLASSES[maxIndex],
-      bounds,
+      objectClass: name,
+      bounds: result.bounds,
     };
 
     resultBoxes.push(match);
   }
 
+  console.log(resultBoxes);
   return resultBoxes;
 }

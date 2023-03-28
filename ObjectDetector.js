@@ -178,8 +178,6 @@ export default async function detectObjects(image) {
   const imgScaleX = imageWidth / IMAGE_SIZE;
   const imgScaleY = imageHeight / IMAGE_SIZE;
 
-  console.log(prediction);
-
   // Filter results and calulate bounds
   const results = outputsToNMSPredictions(
     prediction[0],

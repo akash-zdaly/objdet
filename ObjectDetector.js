@@ -10,7 +10,7 @@ const T = torchvision.transforms;
 const IMAGE_SIZE = 640;
 
 const MODEL_URL =
-  'https://github.com/akash-zdaly/ImgDet/raw/main/assests/best.ptl';
+  'https://github.com/akash-zdaly/objdet/raw/main/assets/best.torchscript.ptl';
 //'https://github.com/facebookresearch/playtorch/releases/download/v0.2.0/yolov5s.ptl';
 
 let model = null;

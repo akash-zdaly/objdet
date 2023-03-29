@@ -4,13 +4,14 @@ import {
   torch,
   torchvision,
 } from 'react-native-pytorch-core';
-import COCO_CLASSES from './CocoClasses.json';
+import COCO_CLASSES from './classes.json';
 
 const T = torchvision.transforms;
 const IMAGE_SIZE = 640;
 
 const MODEL_URL =
-  'https://github.com/facebookresearch/playtorch/releases/download/v0.2.0/yolov5s.ptl';
+  'https://github.com/akash-zdaly/ImgDet/raw/main/assests/best.ptl';
+//'https://github.com/facebookresearch/playtorch/releases/download/v0.2.0/yolov5s.ptl';
 
 let model = null;
 console.log(MODEL_URL);
@@ -169,7 +170,7 @@ export default async function detectObjects(image) {
     console.log('Model successfully loaded');
   }
 
-  //console.log(model);
+  console.log(model);
 
   // Run inference
   const output = await model.forward(formattedInputTensor);

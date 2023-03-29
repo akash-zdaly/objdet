@@ -1,89 +1,96 @@
-Sign_board
-Shell
-Mobil
-Chevron
-BP
-MARATHON
-Sunoco
-Phillips 66
-Valero
-CITGO
-SPEEDWAY
-CASEYS
-7-ELEVEN
-Circle K
-CONOCO
-SINCLAIR
-CENEX
-Arco
-TEXACO
-Gulf
-Murphy Usa
-KROGER
-QUIKTRIP
-WAWA
-KWIKTRIP
-SHEETZ
-LOVES
-ALON
-RACETRAC
-CUMBERLAND
-HOLIDAY
-Sams Club
-Costco
-PILOT
-KUM&GO
-AMOCO
-CLARK
-MAVERIK
-Walmart
-Murphy Express
-IRVING
-MAPCO
-LIBERTY
-Kwik Fill
-SAFEWAY
-STEWARTS
-RACEWAY
-DELTA
-PURE
-H-E-B
-GETGO
-TURKEYHILL
-MEIJER
-Royal Farms
-THORNTONS
-Diamond Shamrock
-FASTSTOP(GROWMARK)
-LUKOIL
-LOAFNJUG
-UNITEDDAIRYFARMERS
-BJ'S
-GASNGO
-FAST&FRESH
-Flying J
-VPRACINGFUELS
-MFA
-E-ZMART
-KWIKSHOP
-ENMARKET
-CEFCO
-AAFES
-HUCKS
-GOMART
-FREDMEYER
-TOMTHUMB
-SMITHS
-KWIKSTAR
-INGLES
-Stop & Shop (Ahold)
-GIANT(AHOLD)
-FRYS
-QUICKCHEK
-MIRABITO
-Pac Pride
-DK
-CARROLLMOTORFUELS
-Quik Stop
-CROWN
-FAMILYEXPRESS
+[
+	"Sign_board",
+	"Shell",
+	"Mobil",
+	"Chevron",
+	"BP",
+	"MARATHON",
+	"Sunoco",
+	"Phillips 66",
+	"Valero",
+	"CITGO",
+	"SPEEDWAY",
+	"CASEYS",
+	"7-ELEVEN",
+	"Circle K",
+	"CONOCO",
+	"SINCLAIR",
+	"CENEX",
+	"Arco",
+	"TEXACO",
+	"Gulf",
+	"Murphy Usa",
+	"KROGER",
+	"QUIKTRIP",
+	"WAWA",
+	"KWIKTRIP",
+	"SHEETZ",
+	"LOVES",
+	"ALON",
+	"RACETRAC",
+	"CUMBERLAND",
+	"HOLIDAY",
+	"Sams Club",
+	"Costco",
+	"PILOT",
+	"KUM&GO",
+	"AMOCO",
+	"CLARK",
+	"MAVERIK",
+	"Walmart",
+	"Murphy Express",
+	"IRVING",
+	"MAPCO",
+	"LIBERTY",
+	"Kwik Fill",
+	"SAFEWAY",
+	"STEWARTS",
+	"RACEWAY",
+	"DELTA",
+	"PURE",
+	"H-E-B",
+	"GETGO",
+	"TURKEYHILL",
+	"MEIJER",
+	"Royal Farms",
+	"THORNTONS",
+	"Diamond Shamrock",
+	"FASTSTOP(GROWMARK)",
+	"LUKOIL",
+	"LOAFNJUG",
+	"UNITEDDAIRYFARMERS",
+	"BJ'S",
+	"GASNGO",
+	"FAST&FRESH",
+	"Flying J",
+	"VPRACINGFUELS",
+	"MFA",
+	"E-ZMART",
+	"KWIKSHOP",
+	"ENMARKET",
+	"CEFCO",
+	"AAFES",
+	"HUCKS",
+	"GOMART",
+	"FREDMEYER",
+	"TOMTHUMB",
+	"SMITHS",
+	"KWIKSTAR",
+	"INGLES",
+	"Stop",
+	"&",
+	"Shop",
+	"(Ahold)",
+	"GIANT(AHOLD)",
+	"FRYS",
+	"QUICKCHEK",
+	"MIRABITO",
+	"Pac",
+	"Pride",
+	"DK",
+	"CARROLLMOTORFUELS",
+	"Quik",
+	"Stop",
+	"CROWN",
+	"FAMILYEXPRESS"
+]

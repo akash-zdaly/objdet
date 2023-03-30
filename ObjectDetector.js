@@ -3,7 +3,6 @@ import {
   MobileModel,
   torch,
   torchvision,
-  PyTorch,
 } from 'react-native-pytorch-core';
 import COCO_CLASSES from './classes.json';
 
@@ -11,8 +10,8 @@ const T = torchvision.transforms;
 const IMAGE_SIZE = 640;
 
 const MODEL_URL =
-  //'https://github.com/akash-zdaly/objdet/raw/main/assets/yolo.torchscript.ptl';
-  'https://github.com/facebookresearch/playtorch/releases/download/v0.2.0/yolov5s.ptl';
+  'https://github.com/akash-zdaly/objdet/raw/main/assets/yolov5s.ptl';
+//'https://github.com/facebookresearch/playtorch/releases/download/v0.2.0/yolov5s.ptl';
 
 let model = null;
 console.log(MODEL_URL);
@@ -167,9 +166,7 @@ export default async function detectObjects(image) {
   if (model == null) {
     console.log('Loading model...');
     const filePath = await MobileModel.download(MODEL_URL);
-    console.log(filePath);
-    // #model = torch.jit.load(filePath, (map_location = torch.device('cpu')));
-    model = await PyTorch.loadModel(filePath);
+    model = await torch.jit._loadForMobile(filePath);
     console.log(model);
     console.log('Model successfully loaded');
   }

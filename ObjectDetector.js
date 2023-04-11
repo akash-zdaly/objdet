@@ -5,18 +5,22 @@ import {
   torchvision,
 } from 'react-native-pytorch-core';
 import COCO_CLASSES from './zdaly_classes.json';
+import Torch from 'react-native-pytorch-core';
 
 const T = torchvision.transforms;
 const IMAGE_SIZE = 640;
 
 const MODEL_URL =
   // 'https://github.com/akash-zdaly/objdet/raw/main/assets/yolov5s_zdaly_custom.ptl';
-  'https://github.com/akash-zdaly/objdet/raw/main/assets/yolo_zdaly.ptl';
+  'https://github.com/akash-zdaly/objdet/raw/main/assets/test.ptl';
 // 'https://github.com/akash-zdaly/objdet/raw/main/assets/yolov5s.ptl';
 //'https://github.com/facebookresearch/playtorch/releases/download/v0.2.0/yolov5s.ptl';
 
 let model = null;
-console.log(MODEL_URL);
+
+const modelPath = '/Users/admin/Desktop/objdet/assets/yolo_zdaly.ptl';
+
+console.log(modelPath);
 /**
  * Computes intersection-over-union overlap between two bounding boxes.
  */
@@ -167,8 +171,9 @@ export default async function detectObjects(image) {
   // Load model if not loaded
   if (model == null) {
     console.log('Loading model...');
-    const filePath = await MobileModel.download(MODEL_URL);
-    model = await torch.jit._loadForMobile(filePath);
+    // const filePath = await MobileModel.download(MODEL_URL);
+    // model = await torch.jit._loadForMobile('./assets/yolo_zdaly.ptl');
+    model = await Torch.loadModel(modelPath);
     console.log(model);
     console.log('Model successfully loaded');
   }
